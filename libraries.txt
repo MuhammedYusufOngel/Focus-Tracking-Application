@@ -1,0 +1,8 @@
+//Navigating my head...
+npx expo install @react-navigation/native
+npx expo install react-native-screens react-native-safe-area-context
+npx expo install @react-navigation/bottom-tabs
+//Icons
+npx expo install @expo/vector-icons
+//counter design
+npx expo install react-native-circular-progress
