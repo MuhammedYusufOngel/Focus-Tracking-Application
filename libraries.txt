@@ -6,3 +6,5 @@ npx expo install @react-navigation/bottom-tabs
 npx expo install @expo/vector-icons
 //counter design
 npx expo install react-native-circular-progress
+//Input
+expo install react-native-paper react-native-vector-icons
