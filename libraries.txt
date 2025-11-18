@@ -8,3 +8,6 @@ npx expo install @expo/vector-icons
 npx expo install react-native-circular-progress
 //Input
 expo install react-native-paper react-native-vector-icons
+//database
+npm install --save react-native-sqlite-storage
+npm install --save setimmediate
