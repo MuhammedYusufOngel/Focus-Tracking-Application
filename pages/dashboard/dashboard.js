@@ -1,8 +1,8 @@
 import { StyleSheet, View, TouchableOpacity, Text, ScrollView, Dimensions } from 'react-native';
 
-import TotalFocussing from './statistics/TotalFocussing.js';
-import AllTimeFocussing from './statistics/AllTimeFocussing.js';
-import TotalDistraction from './statistics/TotalDistraction.js';
+import TotalFocussingPage from './statistics/TotalFocussing.js';
+import AllTimeFocussingPage from './statistics/AllTimeFocussing.js';
+import TotalDistractionPage from './statistics/TotalDistraction.js';
 
 import { DataTable } from 'react-native-paper'
 import { useEffect, useState } from 'react';
@@ -12,15 +12,27 @@ import * as SQLite from "expo-sqlite";
 export default function DashboardScreen(){
 
   const [page, setPage] = useState(0)
-  const [rows, setRows] = useState([])
+  const [AllTimeFocussing, SetAllTimeFocussing] = useState(0)
+  const [TotalDistraction, SetTotalDistraction] = useState(0)
+  const [TotalFocussing, SetTotalFocussing] = useState(0)
+  const [Rows, SetRows] = useState(0)
 
   useEffect(() => {
     const db = SQLite.openDatabaseSync("test.db");
 
-    const dneeme = db.getAllSync("SELECT * FROM 'FocussingTracking'")
-    console.log(dneeme)
+    // const dneeme = db.getAllSync("SELECT * FROM 'FocussingTracking'")
+    // console.log(dneeme)
 
-    setRows(db.getAllSync("SELECT * FROM 'FocussingTracking'"))
+    SetRows(db.getAllSync("SELECT* FROM FocussingTracking;"))
+    SetTotalDistraction(db.getFirstSync("SELECT SUM(TotalDistractions) AS totalDistraction FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()]))
+    SetTotalFocussing(db.getFirstSync("SELECT SUM(Time) AS sumTime FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()]))
+    SetAllTimeFocussing(db.getFirstSync("SELECT MAX(Time) AS maxTime FROM FocussingTracking"))
+
+    // console.log("-----------------")
+    // console.log("TotalDistraction: " + TotalDistraction.totalDistraction)
+    // console.log("TotalFocussing: " + TotalFocussing.sumTime)
+    // console.log("AllTimeFocussing: " + AllTimeFocussing.maxTime)
+    // console.log("-----------------")
   }, [])
 
   const up = "<--"
@@ -33,8 +45,8 @@ export default function DashboardScreen(){
       <ScrollView style={{flex: 1, width: width}}>
         <View style={styles.tables}>
           {
-            page === 0 ? <TotalFocussing /> :
-            (page === 1 ? <AllTimeFocussing /> : <TotalDistraction />)
+            page === 0 ? <TotalFocussingPage data={TotalFocussing} /> :
+            (page === 1 ? <AllTimeFocussingPage data={AllTimeFocussing} /> : <TotalDistractionPage data={TotalDistraction}/>)
           }
         </View>
 
@@ -73,17 +85,18 @@ export default function DashboardScreen(){
 
         </View>
         
-        {/* <View style={styles.FocussingTracking}>
+        <View style={styles.FocussingTracking}>
 
           <DataTable>
             <DataTable.Header>
+                <DataTable.Title style={styles.title}>#</DataTable.Title>
                 <DataTable.Title style={styles.title}>Kategori</DataTable.Title>
                 <DataTable.Title style={styles.title}>Süre</DataTable.Title>
                 <DataTable.Title style={styles.title}>Tarih</DataTable.Title>
                 <DataTable.Title style={styles.title}>TotalDistraction</DataTable.Title>
             </DataTable.Header>
             {
-              rows.map(item => (
+              Rows.map(item => (
                 <DataTable.Row>
                     <DataTable.Cell>{item.Category}</DataTable.Cell>
                     <DataTable.Cell>{item.Time}</DataTable.Cell>
@@ -93,7 +106,7 @@ export default function DashboardScreen(){
               ))
             }
           </DataTable>
-        </View> */}
+        </View>
       </ScrollView>
     </View>  
   )

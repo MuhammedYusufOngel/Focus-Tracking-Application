@@ -1,7 +1,7 @@
 import { View, StyleSheet } from 'react-native'
 import { DataTable } from 'react-native-paper'
 
-export default function TotalDistraction() {
+export default function TotalDistraction({data}) {
     return (
         <View style={styles.container}>
             <DataTable>
@@ -10,7 +10,7 @@ export default function TotalDistraction() {
                 </DataTable.Header>
 
                 <DataTable.Row>
-                    <DataTable.Cell style={styles.title}>15</DataTable.Cell>
+                    <DataTable.Cell style={styles.title}>{data.totalDistraction}</DataTable.Cell>
                 </DataTable.Row>
             </DataTable>
         </View>

@@ -55,7 +55,7 @@ export default function TabMenu() {
   useEffect(() => {
     initDB()
     CreateTable()
-    //CreateItems(1500, new Date(2025, 11, 18, 2, 30, 0).toString(), "project", 5)
+    CreateItems(450, new Date().toLocaleDateString(), "coding", 2)
   }, [])
 
 

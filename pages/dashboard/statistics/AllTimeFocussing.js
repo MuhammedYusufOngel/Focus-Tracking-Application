@@ -1,7 +1,12 @@
 import { View, StyleSheet } from 'react-native'
 import { DataTable } from 'react-native-paper'
 
-export default function AllTimeFocussing() {
+export default function AllTimeFocussing({data}) {
+    const time = data.maxTime;
+
+    const hours = (time / 60) > 60 ? Math.floor(time / (60 * 60)) : 0
+    const minutes = (time / 60) > 60 ? time % (60 * 60) : Math.floor(time / 60)
+
     return (
         <View style={styles.container}>
             <DataTable>
@@ -10,7 +15,7 @@ export default function AllTimeFocussing() {
                 </DataTable.Header>
 
                 <DataTable.Row>
-                    <DataTable.Cell style={styles.title}>2s 15dk</DataTable.Cell>
+                    <DataTable.Cell style={styles.title}>{hours !== 0 ? hours + " s " + minutes + " dk" : minutes + " dk"}</DataTable.Cell>
                 </DataTable.Row>
             </DataTable>
         </View>
