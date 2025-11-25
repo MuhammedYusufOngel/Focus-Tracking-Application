@@ -10,13 +10,12 @@ export default function TotalDistraction({data}) {
                 </DataTable.Header>
 
                 <DataTable.Row>
-                    <DataTable.Cell style={styles.title}>{data.totalDistraction}</DataTable.Cell>
+                    <DataTable.Cell style={styles.title}>{data.totalDistraction !== null ? data.totalDistraction : "0"}</DataTable.Cell>
                 </DataTable.Row>
             </DataTable>
         </View>
     )
 }
-
 
 const styles = StyleSheet.create({
     container: {

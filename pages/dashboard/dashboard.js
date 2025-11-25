@@ -3,11 +3,14 @@ import { StyleSheet, View, TouchableOpacity, Text, ScrollView, Dimensions } from
 import TotalFocussingPage from './statistics/TotalFocussing.js';
 import AllTimeFocussingPage from './statistics/AllTimeFocussing.js';
 import TotalDistractionPage from './statistics/TotalDistraction.js';
+import LastSevenDaysPage from './statistics/LastSevenDays.js';
+import AccordingToCategoryPage from './statistics/AccordingToCategory.js';
 
 import { DataTable } from 'react-native-paper'
 import { useEffect, useState } from 'react';
 
 import * as SQLite from "expo-sqlite";
+import AccordingToCategory from './statistics/AccordingToCategory.js';
 
 export default function DashboardScreen(){
 
@@ -15,7 +18,70 @@ export default function DashboardScreen(){
   const [AllTimeFocussing, SetAllTimeFocussing] = useState(0)
   const [TotalDistraction, SetTotalDistraction] = useState(0)
   const [TotalFocussing, SetTotalFocussing] = useState(0)
-  const [Rows, SetRows] = useState(0)
+  const [LastSevenDaysFocussing, SetLastSevenDaysFocussing] = useState([])
+  const [Categories, SetCategories] = useState([])
+  const [Rows, SetRows] = useState([])
+
+  async function LastSevenDaysDatas(){
+    let LastSevenDaysArray = []
+
+    const db = await SQLite.openDatabaseAsync("test.db");
+    const dates = await db.getAllAsync("SELECT id, Time, Date FROM FocussingTracking;")
+
+    dates.forEach(element => {
+      const [m, d, y] = element.Date.split("/");
+      let isAdded = false;
+
+      if(element.Date !== m){
+          const inputDate = new Date(y, m - 1, d);
+          const now = new Date();
+
+          console.log(element.Date + ":::" + m)
+
+          const diffMs = now - inputDate;
+          const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+
+          if (diffMs > oneWeekMs) {
+              console.log("Bu tarih 1 haftadan eski, işlem yapılıyor!");
+          } 
+          else {
+              LastSevenDaysArray.forEach(taylor => {
+                  if(taylor[1] === element.Date){
+                      taylor[0] += element.Time
+                      isAdded = true;
+                  }
+              });
+
+              if(!isAdded)
+                LastSevenDaysArray.push([element.Time, element.Date])
+          }
+      }
+    });
+
+    SetLastSevenDaysFocussing(LastSevenDaysArray)
+  }
+
+  async function AccordingToCategory() {
+    let Categories = []
+
+    const db = await SQLite.openDatabaseAsync("test.db");
+    const datas = await db.getAllAsync("SELECT Time, Category FROM FocussingTracking;")
+
+    datas.forEach(element => {
+      let isAdded = false;
+      Categories.forEach(taylor => {
+          if(taylor[1] === element.Category){
+              taylor[0] += element.Time
+              isAdded = true;
+          }
+      });
+
+      if(!isAdded)
+        Categories.push([element.Time, element.Category])
+    })
+
+    SetCategories(Categories)
+  }
 
   useEffect(() => {
     const db = SQLite.openDatabaseSync("test.db");
@@ -28,10 +94,16 @@ export default function DashboardScreen(){
     SetTotalFocussing(db.getFirstSync("SELECT SUM(Time) AS sumTime FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()]))
     SetAllTimeFocussing(db.getFirstSync("SELECT MAX(Time) AS maxTime FROM FocussingTracking"))
 
+    db.closeSync()
+
+    LastSevenDaysDatas()
+    AccordingToCategory()
+
     // console.log("-----------------")
     // console.log("TotalDistraction: " + TotalDistraction.totalDistraction)
     // console.log("TotalFocussing: " + TotalFocussing.sumTime)
     // console.log("AllTimeFocussing: " + AllTimeFocussing.maxTime)
+    // console.log("LastSevenDaysFocussing: " + LastSevenDaysFocussing)
     // console.log("-----------------")
   }, [])
 
@@ -87,7 +159,10 @@ export default function DashboardScreen(){
         
         <View style={styles.FocussingTracking}>
 
-          <DataTable>
+          <LastSevenDaysPage data={LastSevenDaysFocussing} />
+          
+          <AccordingToCategoryPage Categories={Categories} />
+          {/* <DataTable>
             <DataTable.Header>
                 <DataTable.Title style={styles.title}>#</DataTable.Title>
                 <DataTable.Title style={styles.title}>Kategori</DataTable.Title>
@@ -98,6 +173,7 @@ export default function DashboardScreen(){
             {
               Rows.map(item => (
                 <DataTable.Row>
+                    <DataTable.Cell>{item.id}</DataTable.Cell>
                     <DataTable.Cell>{item.Category}</DataTable.Cell>
                     <DataTable.Cell>{item.Time}</DataTable.Cell>
                     <DataTable.Cell>{item.Date}</DataTable.Cell>
@@ -105,7 +181,9 @@ export default function DashboardScreen(){
                 </DataTable.Row>
               ))
             }
-          </DataTable>
+          </DataTable> */}
+
+
         </View>
       </ScrollView>
     </View>  
