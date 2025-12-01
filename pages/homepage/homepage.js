@@ -5,7 +5,6 @@ import CounterSettings from './counter-settings.js'
 
 export default function HomeScreen(){
 
-
   return (
     <View style={styles.tab}>
 

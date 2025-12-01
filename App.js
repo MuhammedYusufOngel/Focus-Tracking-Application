@@ -11,53 +11,53 @@ import * as SQLite from "expo-sqlite";
 
 const Tab = createBottomTabNavigator();
 
-async function initDB() {
-    // Kütüphane nesnesinin varlığını kontrol edin
-    if (!SQLite) {
-        console.log("SQLite kütüphanesi yüklenemedi!");
-        return; 
-    }
-    
-    const db = SQLite.openDatabaseSync("test.db");
+// function CreateTable(){
+//   db.execSync(
+//     "CREATE TABLE IF NOT EXISTS FocussingTracking "+
+//     "(id INTEGER PRIMARY KEY AUTOINCREMENT, Time INTEGER, Date TEXT, Category TEXT, TotalDistractions INTEGER);"
+//   )
+  
+//   db.closeSync()
+//   console.log("İyi gidiyoruz") 
+// }
 
-    if(db)
-      console.log("isokay")
+// function CreateItems(time, date, category, totalDistractions){
 
-    // await db.transaction((query) => {
-    //   query.executeSql(
-    //     "INSERT INTO FocussingTracking (Time, Date, Category, TotalDistractions) VALUES (1500, '2025-11-18', 'project', 5)"
-    //   )
-    // })
-};
+//   db.runSync(
+//     "INSERT INTO FocussingTracking (Time, Date, Category, TotalDistractions) VALUES (?, ?, ?, ?);",
+//     [time, date, category, totalDistractions]
+//   )
 
-function CreateTable(){
-  const db = SQLite.openDatabaseSync("test.db");
+//   db.closeSync()
+// }
 
-  db.execSync(
-    "CREATE TABLE IF NOT EXISTS FocussingTracking "+
-    "(id INTEGER PRIMARY KEY AUTOINCREMENT, Time INTEGER, Date TEXT, Category TEXT, TotalDistractions INTEGER);"
-  )
+// async function DeleteItems() {
+//   console.log("Çalışıyor...")
 
-  console.log("İyi gidiyoruz") 
-}
+//   try {
+//     const db = await SQLite.openDatabaseAsync("test.db");
 
-function CreateItems(time, date, category, totalDistractions){
-  const db = SQLite.openDatabaseSync("test.db");
+//     const category = "Kodlama"
+//     console.log('Category değeri:', category);
+  
+//     await db.runAsync(
+//       "DELETE from FocussingTracking where Category=?", 
+//       category
+//     )
 
-  db.runSync(
-    "INSERT INTO FocussingTracking (Time, Date, Category, TotalDistractions) VALUES"+
-    " (?, ?, ?, ?);", [time, date, category, totalDistractions]
-  )
-}
+//     await db.closeAsync()
+//   } catch (error) {
+//     console.log("error: " + error)
+//   }
+// }
 
 export default function TabMenu() {
 
   useEffect(() => {
-    initDB()
-    CreateTable()
+    // CreateTable()
     //CreateItems(450, new Date().toLocaleDateString(), "coding", 2)
+    //DeleteItems()
   }, [])
-
 
   return (
     <NavigationContainer>
@@ -79,7 +79,7 @@ export default function TabMenu() {
         })}
         >
         <Tab.Screen name='Ana Sayfa' component={HomePage} />
-        <Tab.Screen name='Dashboard' component={Dashboard} />
+        <Tab.Screen name='Dashboard' component={Dashboard}/>
       </Tab.Navigator>
     </NavigationContainer>
   );

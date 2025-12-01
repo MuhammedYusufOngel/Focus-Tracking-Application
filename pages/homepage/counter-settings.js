@@ -4,15 +4,58 @@ import { Ionicons } from "@expo/vector-icons";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { Picker } from '@react-native-picker/picker';
 
+import * as SQLite from "expo-sqlite";
+
 export default function TimerCounter() {
-  const [selectedTime, setSelectedTime] = useState(1500); // Başlangıç 60 sn
+  const [selectedTime, setSelectedTime] = useState(60); // Başlangıç 60 sn
   const [time, setTime] = useState(selectedTime);
   const [category, setCategory] = useState("")
   const [isRunning, setIsRunning] = useState(true);
   const [appState, setAppState] = useState(AppState.currentState)
 
   const [counter, setCounter] = useState(0);
-  
+
+// function testDbConnection() {
+//   return new Promise((resolve, reject) => {
+//     db.transaction(tx => {
+//       tx.executeSql(
+//         "SELECT 1;",
+//         [],
+//         () => resolve(true),
+//         (_, error) => reject(error)
+//       );
+//     });
+//   });
+// }
+
+  async function AddItem() {
+
+
+    if(category.length === 0){
+      setCategory("coding")
+    }
+
+    // console.log("category:"+category)
+    // console.log("counter:" + counter)
+    // console.log("selectedTime:" + selectedTime)
+    // console.log("new Date().toLocaleDateString():" + new Date().toLocaleDateString())
+    
+    const db = SQLite.openDatabaseSync("test.db")
+
+    try {
+      db.runSync(
+        "INSERT INTO FocussingTracking (Time, Date, Category, TotalDistractions) VALUES (?, ?, ?, ?);",
+        [selectedTime, new Date().toLocaleDateString(), category, counter]
+      )
+      console.log("oke")
+    } catch (error) {
+      console.log(error)
+    }
+
+    db.closeSync()
+
+  }
+
   // Timer çalışması
   useEffect(() => {
     let timer;
@@ -20,6 +63,10 @@ export default function TimerCounter() {
     if (isRunning && time > 0) {
       timer = setTimeout(() => setTime(time - 1), 1000);
     } else if (time === 0) {
+      if(isRunning){
+        console.log("---")
+        AddItem()
+      }
       setIsRunning(false);
     }
     return () => clearTimeout(timer);
@@ -138,12 +185,12 @@ export default function TimerCounter() {
             <View style={styles.pickerContainer}>
             <Picker
             selectedValue={category}
-            onValueChange={(itemValue) => setCategory(itemValue)}
+            onValueChange={(prev) => setCategory(prev)}
             style={styles.picker}
             >
                 {/* <Picker.Item label="Seçiniz..." value="" /> */}
-                <Picker.Item label="👩‍💻 Kodlama" value="👩‍💻 Kodlama" />
-                <Picker.Item label="📝 Ders Çalışma" value="📝 Ders Çalışma" />
+                <Picker.Item label="👩‍💻 Kodlama" value="coding" />
+                <Picker.Item label="📝 Ders Çalışma" value="studying" />
                 <Picker.Item label="🛠️ Proje" value="project" />
                 <Picker.Item label="📖 Kitap Okuma" value="reading" />
             </Picker>

@@ -6,8 +6,10 @@ import TotalDistractionPage from './statistics/TotalDistraction.js';
 import LastSevenDaysPage from './statistics/LastSevenDays.js';
 import AccordingToCategoryPage from './statistics/AccordingToCategory.js';
 
-import { DataTable } from 'react-native-paper'
+
+import { DataTable } from 'react-native-paper';
 import { useEffect, useState } from 'react';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 import * as SQLite from "expo-sqlite";
 import AccordingToCategory from './statistics/AccordingToCategory.js';
@@ -26,89 +28,136 @@ export default function DashboardScreen(){
     let LastSevenDaysArray = []
 
     const db = await SQLite.openDatabaseAsync("test.db");
-    const dates = await db.getAllAsync("SELECT id, Time, Date FROM FocussingTracking;")
+    try {
+      const dates = await db.getAllAsync("SELECT id, Time, Date FROM FocussingTracking;")
 
-    dates.forEach(element => {
-      const [m, d, y] = element.Date.split("/");
-      let isAdded = false;
+      dates.forEach(element => {
+        const [m, d, y] = element.Date.split("/");
+        let isAdded = false;
 
-      if(element.Date !== m){
-          const inputDate = new Date(y, m - 1, d);
-          const now = new Date();
+        if(element.Date !== m){
+            const inputDate = new Date(y, m - 1, d);
+            const now = new Date();
+            const diffMs = now - inputDate;
+            const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
 
-          console.log(element.Date + ":::" + m)
+            if (diffMs > oneWeekMs) {
 
-          const diffMs = now - inputDate;
-          const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+            } 
+            else {
+                LastSevenDaysArray.forEach(taylor => {
+                    if(taylor[1] === element.Date){
+                        taylor[0] += element.Time
+                        isAdded = true;
+                    }
+                });
 
-          if (diffMs > oneWeekMs) {
-              console.log("Bu tarih 1 haftadan eski, işlem yapılıyor!");
-          } 
-          else {
-              LastSevenDaysArray.forEach(taylor => {
-                  if(taylor[1] === element.Date){
-                      taylor[0] += element.Time
-                      isAdded = true;
-                  }
-              });
+                if(!isAdded)
+                  LastSevenDaysArray.push([element.Time, element.Date])
+            }
+        }
+      });
 
-              if(!isAdded)
-                LastSevenDaysArray.push([element.Time, element.Date])
-          }
-      }
-    });
+      SetLastSevenDaysFocussing(LastSevenDaysArray)
 
-    SetLastSevenDaysFocussing(LastSevenDaysArray)
+      await db.closeAsync()
+    } catch (error) {
+      console.log("error:" + error)
+    }
   }
 
   async function AccordingToCategory() {
     let Categories = []
 
     const db = await SQLite.openDatabaseAsync("test.db");
-    const datas = await db.getAllAsync("SELECT Time, Category FROM FocussingTracking;")
 
-    datas.forEach(element => {
-      let isAdded = false;
-      Categories.forEach(taylor => {
-          if(taylor[1] === element.Category){
-              taylor[0] += element.Time
-              isAdded = true;
-          }
-      });
+    try {
+      const datas = await db.getAllAsync("SELECT Time, Category FROM FocussingTracking;")
 
-      if(!isAdded)
-        Categories.push([element.Time, element.Category])
-    })
+      datas.forEach(element => {
+        let isAdded = false;
+        Categories.forEach(taylor => {
+            if(taylor[1] === element.Category){
+                taylor[0] += element.Time
+                isAdded = true;
+            }
+        });
 
-    SetCategories(Categories)
+        if(!isAdded)
+          Categories.push([element.Time, element.Category])
+      })
+
+      SetCategories(Categories) 
+    } catch (error) {
+      console.log("error:" + error)
+    }
+
+    await db.closeAsync()
+  }
+
+  async function GetAllDatas() {
+    const db = await SQLite.openDatabaseAsync("test.db");
+
+    try {
+      const datas = await db.getAllAsync("SELECT* FROM FocussingTracking;")
+      SetRows(datas)
+    } catch (error) {
+      console.log("error:" + error)
+    }
+
+    await db.closeAsync()
+  }
+
+  async function GetTotalDistractions() {
+    const db = await SQLite.openDatabaseAsync("test.db");
+
+    try {
+      const datas = await db.getFirstAsync("SELECT SUM(TotalDistractions) AS totalDistraction FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()])
+      console.log("GetTotalDistractions: " + datas)
+      SetTotalDistraction(datas)
+    } catch (error) {
+      console.log("error:" + error)
+    }
+
+    await db.closeAsync()
+  }
+
+  async function GetTotalFocussing() {
+    const db = await SQLite.openDatabaseAsync("test.db");
+
+    try {
+      const datas = await db.getFirstAsync("SELECT SUM(Time) AS sumTime FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()])
+      console.log("GetTotalFocussing: " + datas)
+      SetTotalFocussing(datas)
+    } catch (error) {
+      console.log("error:" + error)
+    }
+
+    await db.closeAsync()
+  }
+
+  async function GetAllTimeFocussing() {
+    const db = await SQLite.openDatabaseAsync("test.db");
+
+    try {
+      const datas = await db.getFirstAsync("SELECT MAX(Time) AS maxTime FROM FocussingTracking")
+      console.log("GetAllTimeFocussing: " + datas.maxTime)
+      SetAllTimeFocussing(datas)
+    } catch (error) {
+      console.log("error:" + error)
+    }
+
+    await db.closeAsync()
   }
 
   useEffect(() => {
-    const db = SQLite.openDatabaseSync("test.db");
-
-    // const dneeme = db.getAllSync("SELECT * FROM 'FocussingTracking'")
-    // console.log(dneeme)
-
-    SetRows(db.getAllSync("SELECT* FROM FocussingTracking;"))
-    SetTotalDistraction(db.getFirstSync("SELECT SUM(TotalDistractions) AS totalDistraction FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()]))
-    SetTotalFocussing(db.getFirstSync("SELECT SUM(Time) AS sumTime FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()]))
-    SetAllTimeFocussing(db.getFirstSync("SELECT MAX(Time) AS maxTime FROM FocussingTracking"))
-
-    db.closeSync()
-
+    GetAllDatas()
+    GetTotalDistractions()
+    GetTotalFocussing()
+    GetAllTimeFocussing()
     LastSevenDaysDatas()
     AccordingToCategory()
-
-    // console.log("-----------------")
-    // console.log("TotalDistraction: " + TotalDistraction.totalDistraction)
-    // console.log("TotalFocussing: " + TotalFocussing.sumTime)
-    // console.log("AllTimeFocussing: " + AllTimeFocussing.maxTime)
-    // console.log("LastSevenDaysFocussing: " + LastSevenDaysFocussing)
-    // console.log("-----------------")
   }, [])
-
-  const up = "<--"
-  const down = "-->"
 
   const width = Dimensions.get("window").width
 
@@ -130,13 +179,7 @@ export default function DashboardScreen(){
               ]}
               onPress={() => setPage((prev) => prev <= 0 ? prev + 1 : prev)}
               >
-              <Text
-                  style={[
-                  styles.pageButtonText
-                  ]}
-              >
-                  {up}
-              </Text>
+                <Ionicons name="chevron-back" size={28} color="#333" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -146,13 +189,7 @@ export default function DashboardScreen(){
               ]}
               onPress={() => setPage((prev) => prev >= 0 ? prev - 1 : prev)}
           >
-              <Text
-                  style={[
-                  styles.pageButtonText
-                  ]}
-              >
-                  {down}
-              </Text>
+              <Ionicons name="chevron-forward" size={28} color="#333" />
           </TouchableOpacity>
 
         </View>
@@ -162,7 +199,7 @@ export default function DashboardScreen(){
           <LastSevenDaysPage data={LastSevenDaysFocussing} />
           
           <AccordingToCategoryPage Categories={Categories} />
-          {/* <DataTable>
+          <DataTable>
             <DataTable.Header>
                 <DataTable.Title style={styles.title}>#</DataTable.Title>
                 <DataTable.Title style={styles.title}>Kategori</DataTable.Title>
@@ -181,7 +218,7 @@ export default function DashboardScreen(){
                 </DataTable.Row>
               ))
             }
-          </DataTable> */}
+          </DataTable>
 
 
         </View>
