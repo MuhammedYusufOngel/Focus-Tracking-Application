@@ -7,7 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import * as SQLite from "expo-sqlite";
 
 export default function TimerCounter() {
-  const [selectedTime, setSelectedTime] = useState(60); // Başlangıç 60 sn
+  const [selectedTime, setSelectedTime] = useState(10); // Başlangıç 60 sn
   const [time, setTime] = useState(selectedTime);
   const [category, setCategory] = useState("")
   const [isRunning, setIsRunning] = useState(true);
@@ -15,37 +15,27 @@ export default function TimerCounter() {
 
   const [counter, setCounter] = useState(0);
 
-// function testDbConnection() {
-//   return new Promise((resolve, reject) => {
-//     db.transaction(tx => {
-//       tx.executeSql(
-//         "SELECT 1;",
-//         [],
-//         () => resolve(true),
-//         (_, error) => reject(error)
-//       );
-//     });
-//   });
-// }
-
   async function AddItem() {
 
+    let category_null = ""
 
     if(category.length === 0){
-      setCategory("coding")
+      category_null = "coding"
+      setCategory(category_null)
     }
+    else  category_null = category
 
-    // console.log("category:"+category)
-    // console.log("counter:" + counter)
-    // console.log("selectedTime:" + selectedTime)
-    // console.log("new Date().toLocaleDateString():" + new Date().toLocaleDateString())
+    console.log("category:"+category_null)
+    console.log("counter:" + counter)
+    console.log("selectedTime:" + selectedTime)
+    console.log("new Date().toLocaleDateString():" + new Date().toLocaleDateString())
     
     const db = SQLite.openDatabaseSync("test.db")
 
     try {
       db.runSync(
         "INSERT INTO FocussingTracking (Time, Date, Category, TotalDistractions) VALUES (?, ?, ?, ?);",
-        [selectedTime, new Date().toLocaleDateString(), category, counter]
+        [selectedTime, new Date().toLocaleDateString(), category_null, counter]
       )
       console.log("oke")
     } catch (error) {
@@ -53,7 +43,6 @@ export default function TimerCounter() {
     }
 
     db.closeSync()
-
   }
 
   // Timer çalışması
@@ -76,6 +65,10 @@ export default function TimerCounter() {
   useEffect(() => {
     setTime(selectedTime);
     setIsRunning(false);
+
+    return () => {
+      
+    }
   }, [selectedTime]);
 
   useEffect(() => {

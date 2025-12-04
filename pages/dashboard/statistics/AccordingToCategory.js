@@ -11,8 +11,6 @@ export default function AccordingToCategory({Categories}) {
         sumTime += element[0]
     })
 
-    console.log("sumTime: " + sumTime)
-
     Categories.forEach(element => {
         const data = {}
 

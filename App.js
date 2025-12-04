@@ -31,32 +31,34 @@ const Tab = createBottomTabNavigator();
 //   db.closeSync()
 // }
 
-// async function DeleteItems() {
-//   console.log("Çalışıyor...")
+async function DeleteItems() {
+  console.log("Çalışıyor...")
 
-//   try {
-//     const db = await SQLite.openDatabaseAsync("test.db");
+  try {
+    const db = await SQLite.openDatabaseAsync("test.db");
 
-//     const category = "Kodlama"
-//     console.log('Category değeri:', category);
+    const category = "project"
+    console.log('Category değeri:', category);
   
-//     await db.runAsync(
-//       "DELETE from FocussingTracking where Category=?", 
-//       category
-//     )
+    await db.runAsync(
+      "DELETE from FocussingTracking where Category=?", 
+      category
+    )
 
-//     await db.closeAsync()
-//   } catch (error) {
-//     console.log("error: " + error)
-//   }
-// }
+    await db.closeAsync()
+  } catch (error) {
+    console.log("error: " + error)
+  }
+}
 
 export default function TabMenu() {
 
   useEffect(() => {
-    // CreateTable()
-    //CreateItems(450, new Date().toLocaleDateString(), "coding", 2)
-    //DeleteItems()
+    DeleteItems()
+
+    return () => {
+      
+    }
   }, [])
 
   return (

@@ -8,11 +8,12 @@ import AccordingToCategoryPage from './statistics/AccordingToCategory.js';
 
 
 import { DataTable } from 'react-native-paper';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 import * as SQLite from "expo-sqlite";
 import AccordingToCategory from './statistics/AccordingToCategory.js';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function DashboardScreen(){
 
@@ -150,14 +151,19 @@ export default function DashboardScreen(){
     await db.closeAsync()
   }
 
-  useEffect(() => {
-    GetAllDatas()
-    GetTotalDistractions()
-    GetTotalFocussing()
-    GetAllTimeFocussing()
-    LastSevenDaysDatas()
-    AccordingToCategory()
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      GetAllDatas()
+      GetTotalDistractions()
+      GetTotalFocussing()
+      GetAllTimeFocussing()
+      LastSevenDaysDatas()
+      AccordingToCategory()
+
+
+      return () => {}
+    }, [])
+  )
 
   const width = Dimensions.get("window").width
 
