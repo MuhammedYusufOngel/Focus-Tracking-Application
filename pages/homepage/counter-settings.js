@@ -7,7 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import * as SQLite from "expo-sqlite";
 
 export default function TimerCounter() {
-  const [selectedTime, setSelectedTime] = useState(10); // Başlangıç 60 sn
+  const [selectedTime, setSelectedTime] = useState(1500); // Başlangıç 60 sn
   const [time, setTime] = useState(selectedTime);
   const [category, setCategory] = useState("")
   const [isRunning, setIsRunning] = useState(true);
@@ -47,18 +47,46 @@ export default function TimerCounter() {
 
   // Timer çalışması
   useEffect(() => {
+
+    // const zamanlayici = setInterval(() => {
+    //   setTime((eskiSaniye) => {
+    //     if (eskiSaniye <= 1) {
+    //       clearInterval(zamanlayici); // 0 olunca durdur
+    //       return 0;
+    //     }
+    //     return eskiSaniye - 1;
+    //   });
+    // }, 1000);
+
+    // return () => {
+    //   clearInterval(zamanlayici);
+    //   console.log("Sayaç temizlendi, çökme engellendi.");
+    // };
+
     let timer;
 
     if (isRunning && time > 0) {
-      timer = setTimeout(() => setTime(time - 1), 1000);
+      console.log("Timer şu anda çalışıyor. Zaman: " + time)
+      try{
+        timer = setTimeout(() => setTime(time - 1), 1000);
+      }
+      catch(error){
+        console.log("Error:::" + error)
+      }     
     } else if (time === 0) {
       if(isRunning){
-        console.log("---")
         AddItem()
       }
       setIsRunning(false);
     }
-    return () => clearTimeout(timer);
+    return () => {
+      try {
+        clearInterval(timer)
+        clearTimeout(timer) 
+      } catch (error) {
+        console.log("Error::" + error)
+      }
+    };
   }, [isRunning, time]);
 
   // Süre değiştirildiğinde zaman sıfırlansın
