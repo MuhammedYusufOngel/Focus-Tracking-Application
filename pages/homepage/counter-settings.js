@@ -7,7 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import * as SQLite from "expo-sqlite";
 
 export default function TimerCounter() {
-  const [selectedTime, setSelectedTime] = useState(1500); // Başlangıç 60 sn
+  const [selectedTime, setSelectedTime] = useState(60); // Başlangıç 60 sn
   const [time, setTime] = useState(selectedTime);
   const [category, setCategory] = useState("")
   const [isRunning, setIsRunning] = useState(true);
@@ -25,11 +25,6 @@ export default function TimerCounter() {
     }
     else  category_null = category
 
-    console.log("category:"+category_null)
-    console.log("counter:" + counter)
-    console.log("selectedTime:" + selectedTime)
-    console.log("new Date().toLocaleDateString():" + new Date().toLocaleDateString())
-    
     const db = SQLite.openDatabaseSync("test.db")
 
     try {
@@ -37,7 +32,6 @@ export default function TimerCounter() {
         "INSERT INTO FocussingTracking (Time, Date, Category, TotalDistractions) VALUES (?, ?, ?, ?);",
         [selectedTime, new Date().toLocaleDateString(), category_null, counter]
       )
-      console.log("oke")
     } catch (error) {
       console.log(error)
     }
@@ -45,62 +39,7 @@ export default function TimerCounter() {
     db.closeSync()
   }
 
-  // Timer çalışması
   useEffect(() => {
-
-    // const zamanlayici = setInterval(() => {
-    //   setTime((eskiSaniye) => {
-    //     if (eskiSaniye <= 1) {
-    //       clearInterval(zamanlayici); // 0 olunca durdur
-    //       return 0;
-    //     }
-    //     return eskiSaniye - 1;
-    //   });
-    // }, 1000);
-
-    // return () => {
-    //   clearInterval(zamanlayici);
-    //   console.log("Sayaç temizlendi, çökme engellendi.");
-    // };
-
-    let timer;
-
-    if (isRunning && time > 0) {
-      console.log("Timer şu anda çalışıyor. Zaman: " + time)
-      try{
-        timer = setTimeout(() => setTime(time - 1), 1000);
-      }
-      catch(error){
-        console.log("Error:::" + error)
-      }     
-    } else if (time === 0) {
-      if(isRunning){
-        AddItem()
-      }
-      setIsRunning(false);
-    }
-    return () => {
-      try {
-        clearInterval(timer)
-        clearTimeout(timer) 
-      } catch (error) {
-        console.log("Error::" + error)
-      }
-    };
-  }, [isRunning, time]);
-
-  // Süre değiştirildiğinde zaman sıfırlansın
-  useEffect(() => {
-    setTime(selectedTime);
-    setIsRunning(false);
-
-    return () => {
-      
-    }
-  }, [selectedTime]);
-
-  useEffect(() => {
-
     if(!isRunning) return;
 
     const subscription = AppState.addEventListener("change", nextAppState => {
@@ -109,12 +48,42 @@ export default function TimerCounter() {
 
       if(nextAppState === "background"){
         setCounter((prev) => (prev+1))
-      }
         setIsRunning(false)
+      }
     });
 
     return () => subscription.remove();
   }, [isRunning]);
+  
+  useEffect(() => {
+    if (time !== 0) return;
+    if (!isRunning) return;
+
+    setIsRunning(false);
+
+    // UI thread'ten ayırıyoruz
+    const id = setTimeout(() => {
+      AddItem();
+    }, 0);
+
+    return () => clearTimeout(id);
+  }, [time]);
+  
+  useEffect(() => {
+    if (!isRunning || time <= 0) return;
+
+    const timer = setTimeout(() => {
+      setTime(prev => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [isRunning, time]);
+
+  useEffect(() => {
+    setTime(selectedTime);
+    setIsRunning(false);
+  }, [selectedTime]);
+
 
   return (
     <View style={styles.container}>

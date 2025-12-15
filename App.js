@@ -11,46 +11,6 @@ import * as SQLite from "expo-sqlite";
 
 const Tab = createBottomTabNavigator();
 
-// function CreateTable(){
-//   db.execSync(
-//     "CREATE TABLE IF NOT EXISTS FocussingTracking "+
-//     "(id INTEGER PRIMARY KEY AUTOINCREMENT, Time INTEGER, Date TEXT, Category TEXT, TotalDistractions INTEGER);"
-//   )
-  
-//   db.closeSync()
-//   console.log("İyi gidiyoruz") 
-// }
-
-// function CreateItems(time, date, category, totalDistractions){
-
-//   db.runSync(
-//     "INSERT INTO FocussingTracking (Time, Date, Category, TotalDistractions) VALUES (?, ?, ?, ?);",
-//     [time, date, category, totalDistractions]
-//   )
-
-//   db.closeSync()
-// }
-
-async function DeleteItems() {
-  console.log("Çalışıyor...")
-
-  try {
-    const db = await SQLite.openDatabaseAsync("test.db");
-
-    const category = "project"
-    console.log('Category değeri:', category);
-  
-    await db.runAsync(
-      "DELETE from FocussingTracking where Category=?", 
-      category
-    )
-
-    await db.closeAsync()
-  } catch (error) {
-    console.log("error: " + error)
-  }
-}
-
 export default function TabMenu() {
 
   useEffect(() => {

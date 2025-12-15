@@ -114,7 +114,6 @@ export default function DashboardScreen(){
 
     try {
       const datas = await db.getFirstAsync("SELECT SUM(TotalDistractions) AS totalDistraction FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()])
-      console.log("GetTotalDistractions: " + datas)
       SetTotalDistraction(datas)
     } catch (error) {
       console.log("error:" + error)
@@ -128,7 +127,6 @@ export default function DashboardScreen(){
 
     try {
       const datas = await db.getFirstAsync("SELECT SUM(Time) AS sumTime FROM FocussingTracking where Date=?", [new Date().toLocaleDateString()])
-      console.log("GetTotalFocussing: " + datas)
       SetTotalFocussing(datas)
     } catch (error) {
       console.log("error:" + error)
@@ -142,7 +140,6 @@ export default function DashboardScreen(){
 
     try {
       const datas = await db.getFirstAsync("SELECT MAX(Time) AS maxTime FROM FocussingTracking")
-      console.log("GetAllTimeFocussing: " + datas.maxTime)
       SetAllTimeFocussing(datas)
     } catch (error) {
       console.log("error:" + error)
@@ -159,7 +156,6 @@ export default function DashboardScreen(){
       GetAllTimeFocussing()
       LastSevenDaysDatas()
       AccordingToCategory()
-
 
       return () => {}
     }, [])
@@ -205,7 +201,7 @@ export default function DashboardScreen(){
           <LastSevenDaysPage data={LastSevenDaysFocussing} />
           
           <AccordingToCategoryPage Categories={Categories} />
-          <DataTable>
+          {/* <DataTable>
             <DataTable.Header>
                 <DataTable.Title style={styles.title}>#</DataTable.Title>
                 <DataTable.Title style={styles.title}>Kategori</DataTable.Title>
@@ -224,7 +220,7 @@ export default function DashboardScreen(){
                 </DataTable.Row>
               ))
             }
-          </DataTable>
+          </DataTable> */}
 
 
         </View>
